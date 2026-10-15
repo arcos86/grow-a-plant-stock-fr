@@ -1,4 +1,6 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style id="fr-redesign">
+<!doctype html><html><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+#publishGithub[hidden],#githubPublishNote[hidden]{display:none!important}
+</style><style id="fr-redesign">
 body{background:repeating-linear-gradient(45deg,#5148ed 0 18px,#574ef4 18px 36px);font-family:var(--font-body)}
 .wrap{max-width:1130px}.site-nav{display:flex;gap:9px;margin-bottom:14px}.tab{border:3px solid #080612;background:linear-gradient(#82ff64,#2dcc41);color:#111;font-weight:800;border-radius:10px;padding:10px 17px;box-shadow:0 4px #080612}.tab-muted{background:linear-gradient(#fff,#b7b5c1);opacity:.7}
 .hero{border:4px solid #090612;border-radius:18px;box-shadow:0 5px #080612;margin-bottom:18px;padding:20px 25px;background:repeating-linear-gradient(-45deg,#70e960 0 15px,#57d84c 15px 30px);display:flex;justify-content:space-between;align-items:center;gap:12px}
@@ -563,7 +565,7 @@ button:focus-visible, input:focus-visible, .tile:focus-visible { outline: 3px so
       </div>
       <label class="chk" id="hideChk"><input type="checkbox" id="hideUnk"> Cacher les ???</label>
       <div class="search-wrap"><input id="plantSearch" type="search" placeholder="Rechercher une plante..." aria-label="Rechercher une plante"></div><span class="spacer"></span>
-        <button type="button" id="publishGithub" class="save" title="Télécharge un index.html mis à jour à envoyer sur GitHub">🌍 Préparer la mise à jour GitHub</button>
+        <button type="button" id="publishGithub" class="save" hidden title="Télécharge un index.html mis à jour à envoyer sur GitHub">🌍 Préparer la mise à jour GitHub</button>
       <button type="button" id="adminBtn">🔒 Admin</button>
       <button type="button" id="saveBtn" class="save" hidden>💾 Enregistrer</button>
       <button type="button" id="quitBtn" hidden>Quitter l'édition</button>
@@ -575,7 +577,7 @@ button:focus-visible, input:focus-visible, .tile:focus-visible { outline: 3px so
   <button type="button" id="importPlants">📥 Importer mes plantes</button>
   <input type="file" id="importFile" accept="application/json,.json" hidden>
 </div>
-<p class="note" id="githubPublishNote">🌍 Pour publier tes modifications à tous : enregistre-les, clique sur « Préparer la mise à jour GitHub », puis remplace index.html dans ton dépôt. Ton code Admin est local et ne protège pas les fichiers publics.</p>
+<p class="note" id="githubPublishNote" hidden>🌍 Pour publier tes modifications à tous : enregistre-les, clique sur « Préparer la mise à jour GitHub », puis remplace index.html dans ton dépôt. Ton code Admin est local et ne protège pas les fichiers publics.</p>
 <div class="count" id="count"></div>
     <div class="grid" id="grid"></div>
   </section>
@@ -656,7 +658,7 @@ if(!p.image){const raritytag=document.createElement('span');raritytag.className=
 const meta=document.createElement('div');meta.className='meta';meta.innerHTML='<span class="dot"></span><span class="rname"></span><span class="num"></span>';meta.querySelector('.dot').style.background=type[2];meta.querySelector('.rname').textContent=type[1];meta.querySelector('.num').textContent='n° '+p.order;card.append(meta);
 const rev=document.createElement('div');rev.className='rev';rev.textContent='💰 '+money(p.revenue);card.append(rev);
 if(editing){const row=document.createElement('div');row.className='plant-actions';const btn=document.createElement('button');btn.type='button';btn.textContent='✏️ Modifier';btn.onclick=()=>openPlant(p);row.append(btn);card.append(row)}grid.append(card)})}
-function setEditing(on){editing=on;draft=on?clone(activeCatalog==='normal'?plants:halloweenPlants):[];el('adminBtn').hidden=on;el('saveBtn').hidden=!on;el('quitBtn').hidden=!on;el('adminToolbar').hidden=!on;el('editNote').hidden=!on;render()}
+function setEditing(on){editing=on;draft=on?clone(activeCatalog==='normal'?plants:halloweenPlants):[];el('adminBtn').hidden=on;el('saveBtn').hidden=!on;el('quitBtn').hidden=!on;el('adminToolbar').hidden=!on;el('editNote').hidden=!on;el('publishGithub').hidden=!on;el('githubPublishNote').hidden=!on;render()}
 function passwordHash(s){let h=2166136261;for(let i=0;i<s.length;i++)h=Math.imul(h^s.charCodeAt(i),16777619);return String(h>>>0)}
 function openAdmin(){el('adminError').textContent='';el('adminPassword').value='';el('adminExplanation').textContent=localStorage.getItem(PASS_KEY)?'Entre ton code Admin pour accéder à ton catalogue.':'Choisis un code Admin (6 caractères minimum).';el('adminDialog').showModal()}
 function closeAdmin(){el('adminDialog').close();el('adminPassword').value=''}
@@ -674,6 +676,7 @@ function validateImport(x){if(!Array.isArray(x)||x.length>3000)throw Error('Ce f
 el('exportPlants').onclick=()=>{const blob=new Blob([JSON.stringify(draft,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=activeCatalog==='normal'?'mes_plantes_grow_a_plant.json':'mes_plantes_halloween.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
 // Le bouton se trouve dans la barre d’édition : le brouillon doit être enregistré avant la publication.
 el('publishGithub').onclick=async()=>{
+  if(!editing)return;
   const btn=el('publishGithub');
   if(!confirm('Préparer un nouveau index.html contenant les deux catalogues ? Enregistre d’abord tes modifications dans le site.'))return;
   btn.disabled=true;const old=btn.textContent;btn.textContent='⏳ Préparation…';
