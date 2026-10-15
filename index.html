@@ -563,6 +563,7 @@ button:focus-visible, input:focus-visible, .tile:focus-visible { outline: 3px so
       </div>
       <label class="chk" id="hideChk"><input type="checkbox" id="hideUnk"> Cacher les ???</label>
       <div class="search-wrap"><input id="plantSearch" type="search" placeholder="Rechercher une plante..." aria-label="Rechercher une plante"></div><span class="spacer"></span>
+        <button type="button" id="publishGithub" class="save" title="Télécharge un index.html mis à jour à envoyer sur GitHub">🌍 Préparer la mise à jour GitHub</button>
       <button type="button" id="adminBtn">🔒 Admin</button>
       <button type="button" id="saveBtn" class="save" hidden>💾 Enregistrer</button>
       <button type="button" id="quitBtn" hidden>Quitter l'édition</button>
@@ -574,6 +575,7 @@ button:focus-visible, input:focus-visible, .tile:focus-visible { outline: 3px so
   <button type="button" id="importPlants">📥 Importer mes plantes</button>
   <input type="file" id="importFile" accept="application/json,.json" hidden>
 </div>
+<p class="note" id="githubPublishNote">🌍 Pour publier tes modifications à tous : enregistre-les, clique sur « Préparer la mise à jour GitHub », puis remplace index.html dans ton dépôt. Ton code Admin est local et ne protège pas les fichiers publics.</p>
 <div class="count" id="count"></div>
     <div class="grid" id="grid"></div>
   </section>
@@ -670,6 +672,30 @@ function imageData(file){return new Promise((resolve,reject)=>{if(!file)return r
 el('plantForm').addEventListener('submit',async e=>{e.preventDefault();const name=el('plantName').value.trim();if(!name){el('plantError').textContent='Entre un nom.';return}try{const file=el('plantImage').files[0];const newImg=await imageData(file);const old=editId?draft.find(p=>p.id===editId):null;const nextOrder=Math.max(0,...draft.map(p=>p.order||0))+1;const obj={id:old?old.id:String(Date.now())+'-'+Math.random().toString(36).slice(2,8),order:old?old.order:nextOrder,name,rarity:activeCatalog==='halloween'?'exclusive':el('plantRarity').value,revenue:el('plantRevenue').value===''?null:Number(el('plantRevenue').value),image:newImg||pendingImage||''};if(old)Object.assign(old,obj);else draft.push(obj);closePlant();render();toast('Plante ajoutée au brouillon. Clique sur Enregistrer pour confirmer.')}catch(err){el('plantError').textContent=err.message||'Erreur lors de la lecture de l’image'}});
 function validateImport(x){if(!Array.isArray(x)||x.length>3000)throw Error('Ce fichier ne contient pas une liste valide.');return x.map((p,i)=>({id:String(p.id||i+1),order:Number.isFinite(Number(p.order))?Number(p.order):i+1,name:String(p.name||'???').slice(0,100),rarity:TYPES.some(t=>t[0]===p.rarity)?p.rarity:'common',revenue:p.revenue===null||p.revenue===''?null:Number(p.revenue),image:typeof p.image==='string'&&p.image.startsWith('data:image/')?p.image:''}))}
 el('exportPlants').onclick=()=>{const blob=new Blob([JSON.stringify(draft,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=activeCatalog==='normal'?'mes_plantes_grow_a_plant.json':'mes_plantes_halloween.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+// Le bouton se trouve dans la barre d’édition : le brouillon doit être enregistré avant la publication.
+el('publishGithub').onclick=async()=>{
+  const btn=el('publishGithub');
+  if(!confirm('Préparer un nouveau index.html contenant les deux catalogues ? Enregistre d’abord tes modifications dans le site.'))return;
+  btn.disabled=true;const old=btn.textContent;btn.textContent='⏳ Préparation…';
+  try{
+    const response=await fetch(location.href.split('#')[0],{cache:'no-store'});
+    if(!response.ok)throw Error('Fichier HTML introuvable');
+    let source=await response.text();
+    const safeJson=data=>JSON.stringify(data).replace(/</g,'\\u003c').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029');
+    const replaceBackup=(id,arr)=>{
+      const regex=new RegExp('(<script\\s+id="'+id+'"[^>]*>)[\\s\\S]*?(<\\/script>)');
+      if(!regex.test(source))throw Error('Section '+id+' introuvable');
+      source=source.replace(regex,(_,start,end)=>start+safeJson(arr)+end);
+    };
+    replaceBackup('normal-public-backup',plants);
+    replaceBackup('halloween-backup',halloweenPlants);
+    const link=document.createElement('a');const blob=new Blob([source],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);link.href=url;link.download='index.html';link.click();
+    setTimeout(()=>URL.revokeObjectURL(url),15000);
+    toast('index.html téléchargé ✅ Remplace le fichier sur GitHub.');
+  }catch(error){console.error(error);toast('Publication non préparée : '+error.message)}finally{btn.disabled=false;btn.textContent=old}
+};
+
 el('importPlants').onclick=()=>el('importFile').click();el('importFile').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const parsed=validateImport(JSON.parse(await f.text()));if(confirm('Importer '+parsed.length+' plantes ? Cela remplacera le brouillon actuel.')){draft=activeCatalog==='halloween'?parsed.map(p=>({...p,rarity:'exclusive'})):parsed;render();toast('Import réussi. Clique sur Enregistrer.')}}catch(err){toast('Import impossible : '+err.message)}e.target.value='' });
 el('plantSearch').oninput=e=>{search=e.target.value.toLocaleLowerCase('fr-FR').trim();render()};el('hideUnk').onchange=e=>{hideUnknown=e.target.checked;render()};
 document.querySelectorAll('[data-sort]').forEach(b=>b.onclick=()=>{sort=b.dataset.sort;document.querySelectorAll('[data-sort]').forEach(c=>c.setAttribute('aria-pressed',String(c===b)));render()});
