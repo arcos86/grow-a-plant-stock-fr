@@ -385,7 +385,16 @@ button:active,.chk:active,.filter-btn:active{transform:translateY(2px);box-shado
 }
 @media(max-width:600px){.stock-card .stock-original-image{height:115px}}
 </style>
-</head><body>
+<style id="last-stock-style">
+#lastVerifiedStocks{background:#201136;border:3px solid #94e754;border-radius:16px;padding:16px;margin:0 0 20px;color:white}
+#lastVerifiedStocks h2{margin:0 0 6px;color:#baff7d;font-size:1.35rem}
+#lastVerifiedStocks .lv-note{color:#e4d8f2;font-size:.87rem;margin:5px 0 12px}
+#lastVerifiedStocks .lv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+#lastVerifiedStocks .lv-item{background:#342346;border:2px solid #5f4976;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:5px}
+#lastVerifiedStocks .lv-count{color:#aaff83;font-size:1.35rem;font-weight:900}
+#lastVerifiedStocks .lv-time{color:#e3d9e8;font-size:.72rem}
+#lastVerifiedStocks .lv-meta{margin-top:11px;font-size:.8rem;color:#eee}
+</style></head><body>
 <title>Index Grow a Plant</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -583,6 +592,7 @@ button:focus-visible, input:focus-visible, .tile:focus-visible { outline: 3px so
   </section>
 <div id="stocksScreen">
 <header class="hero"><div><h1>📊 Stats Shop</h1><p>Grow a Plant Stock FR · Apparitions vérifiées uniquement</p></div><span id="stockStatus" class="stock-badge">EN ATTENTE</span></header>
+<section id="lastVerifiedStocks" aria-label="Derniers stocks vérifiés"><h2>📦 Dernier relevé vérifié</h2><p class="lv-note">Captures vérifiées manuellement · Ces quantités ne sont pas des stocks en direct.</p><div class="lv-grid" id="lvGrid"></div><div class="lv-meta" id="lvMeta">Chargement des relevés…</div></section>
 <section class="stock-panel"><div class="stock-controls"><button type="button" data-sk="all" class="active">Tout</button><button type="button" data-sk="egg">🥚 Œufs</button><button type="button" data-sk="seed">🌱 Graines</button><button type="button" data-sr="24h">24 h</button><button type="button" data-sr="7d">7 jours</button><button type="button" data-sr="all" class="active">Depuis le début</button></div>
 <div class="stock-summary"><div class="stock-box"><small>Apparitions</small><strong id="stockAppear">—</strong><small>Observées</small></div><div class="stock-box"><small>Restocks surveillés</small><strong id="stockRestocks">—</strong><small>Relevés vérifiés</small></div><div class="stock-box"><small>Le plus fréquent</small><strong id="stockMost">—</strong><small>Dans les relevés</small></div><div class="stock-box"><small>Dernier apparu</small><strong id="stockLast">—</strong><small id="stockLastWhen">En attente</small></div></div>
 <h2 class="stock-section-title">Chaque article</h2><p class="stock-info">Les taux reflètent uniquement les relevés vérifiés, et non les probabilités officielles du jeu. Les stocks inconnus ne sont pas comptés.</p><div class="stock-objects" id="stockObjects"></div>
@@ -746,5 +756,17 @@ get('stockImport').onclick=()=>get('stockFile').click();get('stockFile').onchang
 get('stockExport').onclick=()=>{const blob=new Blob([JSON.stringify({observations:samples},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='mes_releves_stocks_verifies.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500)};
 const statTab=get('statsTab'),normal=get('normalTab'),halloween=get('halloweenTab'),catalog=document.querySelector('.wrap');let statsOn=false;function showStats(){statsOn=true;for(const el of [...catalog.children])if(el!==document.querySelector('.site-nav')&&el!==get('stocksScreen'))el.style.display='none';get('stocksScreen').style.display='block';[normal,halloween].forEach(x=>{x.classList.remove('active');x.classList.add('tab-muted')});statTab.classList.add('active');statTab.classList.remove('tab-muted');paint()}function hideStats(){if(!statsOn)return;statsOn=false;for(const el of [...catalog.children])if(el!==document.querySelector('.site-nav')&&el!==get('stocksScreen'))el.style.display='';get('stocksScreen').style.display='none';statTab.classList.remove('active');statTab.classList.add('tab-muted')}
 statTab.addEventListener('click',showStats);normal.addEventListener('click',hideStats,true);halloween.addEventListener('click',hideStats,true);load();
+})();
+</script><script id="stock-last-embedded" type="application/json">{"game": "Grow a Plant", "generated_at": "2026-10-16T15:12:21+00:00", "collection": "captures_verifiees", "live": false, "items": {"Void Seed Pack": {"stock": 0, "verified_at": "2026-10-16T15:12:14+00:00", "source": "capture_validee_manuellement", "image_filename": "seed_20261016_171159.png"}, "Celestial Seed Pack": {"stock": 0, "verified_at": "2026-10-16T15:12:14+00:00", "source": "capture_validee_manuellement", "image_filename": "seed_20261016_171159.png"}, "Spooky Seed Pack": {"stock": 0, "verified_at": "2026-10-16T15:12:15+00:00", "source": "capture_validee_manuellement", "image_filename": "seed_20261016_171159.png"}, "Inferno Egg": {"stock": 0, "verified_at": "2026-10-16T15:07:47+00:00", "source": "capture_validee_manuellement", "image_filename": "egg_haut_20261016_170733.png"}, "Solar Egg": {"stock": 0, "verified_at": "2026-10-16T15:07:51+00:00", "source": "capture_validee_manuellement", "image_filename": "egg_haut_20261016_170733.png"}, "Sealed Eye Egg": {"stock": 0, "verified_at": "2026-10-16T15:07:57+00:00", "source": "capture_validee_manuellement", "image_filename": "egg_haut_20261016_170733.png"}, "Abyss Egg": {"stock": 0, "verified_at": "2026-10-16T15:08:33+00:00", "source": "capture_validee_manuellement", "image_filename": "egg_bas_20261016_170826.png"}}}</script>
+<script id="stock-last-script">
+(()=>{
+const labels=['Void Seed Pack','Celestial Seed Pack','Spooky Seed Pack','Inferno Egg','Solar Egg','Sealed Eye Egg','Abyss Egg'];
+const grid=document.getElementById('lvGrid'),meta=document.getElementById('lvMeta');
+const embedded=JSON.parse(document.getElementById('stock-last-embedded').textContent);
+function valid(d){return d&&d.game==='Grow a Plant'&&d.items&&typeof d.items==='object'&&d.live===false;}
+function dateFmt(s){if(!s||!Number.isFinite(Date.parse(s)))return 'Heure inconnue';return new Date(s).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short',timeZone:'Europe/Paris'})+' (Paris)';}
+function render(d){grid.replaceChildren();for(const name of labels){const e=d.items[name]||{},qty=e.stock,validQty=Number.isSafeInteger(qty)&&qty>=0&&typeof e.verified_at==='string'&&Number.isFinite(Date.parse(e.verified_at));const node=document.createElement('article');node.className='lv-item';const title=document.createElement('strong');title.textContent=(name.endsWith('Egg')?'🥚 ':'🌱 ')+name;const count=document.createElement('span');count.className='lv-count';count.textContent=validQty?'x'+qty:'Non vérifié';const when=document.createElement('small');when.className='lv-time';when.textContent=validQty?'Vérifié le '+dateFmt(e.verified_at):'Aucun relevé validé';node.append(title,count,when);grid.append(node);}meta.textContent='Données issues de captures vérifiées · Fichier généré le '+dateFmt(d.generated_at)+' · Pas de mise à jour automatique du jeu.';}
+render(embedded);
+if(location.protocol.startsWith('http'))fetch('./stocks.json?updated='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Non disponible');return r.json()}).then(d=>{if(valid(d))render(d)}).catch(()=>{});
 })();
 </script></body></html>

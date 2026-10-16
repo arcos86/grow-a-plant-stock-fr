@@ -1,0 +1,50 @@
+{
+  "game": "Grow a Plant",
+  "generated_at": "2026-10-16T15:12:21+00:00",
+  "collection": "captures_verifiees",
+  "live": false,
+  "items": {
+    "Void Seed Pack": {
+      "stock": 0,
+      "verified_at": "2026-10-16T15:12:14+00:00",
+      "source": "capture_validee_manuellement",
+      "image_filename": "seed_20261016_171159.png"
+    },
+    "Celestial Seed Pack": {
+      "stock": 0,
+      "verified_at": "2026-10-16T15:12:14+00:00",
+      "source": "capture_validee_manuellement",
+      "image_filename": "seed_20261016_171159.png"
+    },
+    "Spooky Seed Pack": {
+      "stock": 0,
+      "verified_at": "2026-10-16T15:12:15+00:00",
+      "source": "capture_validee_manuellement",
+      "image_filename": "seed_20261016_171159.png"
+    },
+    "Inferno Egg": {
+      "stock": 0,
+      "verified_at": "2026-10-16T15:07:47+00:00",
+      "source": "capture_validee_manuellement",
+      "image_filename": "egg_haut_20261016_170733.png"
+    },
+    "Solar Egg": {
+      "stock": 0,
+      "verified_at": "2026-10-16T15:07:51+00:00",
+      "source": "capture_validee_manuellement",
+      "image_filename": "egg_haut_20261016_170733.png"
+    },
+    "Sealed Eye Egg": {
+      "stock": 0,
+      "verified_at": "2026-10-16T15:07:57+00:00",
+      "source": "capture_validee_manuellement",
+      "image_filename": "egg_haut_20261016_170733.png"
+    },
+    "Abyss Egg": {
+      "stock": 0,
+      "verified_at": "2026-10-16T15:08:33+00:00",
+      "source": "capture_validee_manuellement",
+      "image_filename": "egg_bas_20261016_170826.png"
+    }
+  }
+}
