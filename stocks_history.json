@@ -1,0 +1,46 @@
+{
+  "records": [
+    {
+      "item": "Void Seed Pack",
+      "stock": 0,
+      "verified_at": "2026-10-16T15:42:53+00:00",
+      "source": "capture_validee_manuellement"
+    },
+    {
+      "item": "Celestial Seed Pack",
+      "stock": 0,
+      "verified_at": "2026-10-16T15:42:53+00:00",
+      "source": "capture_validee_manuellement"
+    },
+    {
+      "item": "Spooky Seed Pack",
+      "stock": 0,
+      "verified_at": "2026-10-16T15:42:54+00:00",
+      "source": "capture_validee_manuellement"
+    },
+    {
+      "item": "Inferno Egg",
+      "stock": 0,
+      "verified_at": "2026-10-16T15:43:22+00:00",
+      "source": "capture_validee_manuellement"
+    },
+    {
+      "item": "Solar Egg",
+      "stock": 0,
+      "verified_at": "2026-10-16T15:43:26+00:00",
+      "source": "capture_validee_manuellement"
+    },
+    {
+      "item": "Sealed Eye Egg",
+      "stock": 0,
+      "verified_at": "2026-10-16T15:43:30+00:00",
+      "source": "capture_validee_manuellement"
+    },
+    {
+      "item": "Abyss Egg",
+      "stock": 0,
+      "verified_at": "2026-10-16T15:43:47+00:00",
+      "source": "capture_validee_manuellement"
+    }
+  ]
+}

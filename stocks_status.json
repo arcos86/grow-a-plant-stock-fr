@@ -1,0 +1,35 @@
+{
+  "game": "Grow a Plant",
+  "live": false,
+  "stale_after_minutes": 20,
+  "items": {
+    "Void Seed Pack": {
+      "status": "ancien",
+      "verified_at": "2026-10-16T15:42:53+00:00"
+    },
+    "Celestial Seed Pack": {
+      "status": "ancien",
+      "verified_at": "2026-10-16T15:42:53+00:00"
+    },
+    "Spooky Seed Pack": {
+      "status": "ancien",
+      "verified_at": "2026-10-16T15:42:54+00:00"
+    },
+    "Inferno Egg": {
+      "status": "ancien",
+      "verified_at": "2026-10-16T15:43:22+00:00"
+    },
+    "Solar Egg": {
+      "status": "ancien",
+      "verified_at": "2026-10-16T15:43:26+00:00"
+    },
+    "Sealed Eye Egg": {
+      "status": "ancien",
+      "verified_at": "2026-10-16T15:43:30+00:00"
+    },
+    "Abyss Egg": {
+      "status": "ancien",
+      "verified_at": "2026-10-16T15:43:47+00:00"
+    }
+  }
+}
