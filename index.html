@@ -396,7 +396,31 @@ button:focus-visible, input:focus-visible { outline:3px solid #ffee64!important;
 }
 @media (min-width:761px) and (max-width:1000px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-</style></head><body>
+</style>
+<style id="plant-details-styles">
+.card[data-detail]{cursor:pointer;transition:transform .16s ease,box-shadow .16s ease;outline-offset:3px}
+.card[data-detail]:hover{transform:translateY(-4px);box-shadow:0 7px 0 #090512,0 0 0 2px var(--rc)}
+.card[data-detail]:focus-visible{outline:3px solid #91ff46}
+.detail-dialog{border:4px solid #090514;border-radius:22px;padding:0;background:#17102e;color:#fff;max-width:min(94vw,660px);width:100%;max-height:90vh;overflow:auto;box-shadow:0 16px 60px #000b}
+.detail-dialog::backdrop{background:#0e082dd9;backdrop-filter:blur(7px)}
+.detail-top{background:repeating-linear-gradient(130deg,#56d949 0px,#56d949 18px,#6be75c 18px,#6be75c 36px);border-bottom:4px solid #080611;padding:15px 64px 15px 19px;position:relative}
+.detail-top h2{margin:0;font-size:clamp(22px,5vw,34px);line-height:1.18;color:#fff;text-shadow:2px 2px 0 #000,-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000}
+.detail-top p{margin:6px 0 0;font-weight:800;color:#10260b}
+.detail-close{position:absolute;right:13px;top:12px;background:#f44;color:white;border:3px solid #0b0614;border-radius:10px;padding:6px 11px;font-size:21px;font-weight:1000;cursor:pointer;box-shadow:0 3px 0 #080611}
+.detail-body{padding:18px;display:grid;grid-template-columns:minmax(170px,1fr) 1fr;gap:17px;align-items:center}
+.detail-picture{min-height:230px;display:flex;align-items:center;justify-content:center;background:#251c43;border:3px solid #0a0617;border-radius:14px;overflow:hidden}
+.detail-picture img{width:100%;max-height:390px;object-fit:contain;display:block}
+.detail-picture .detail-placeholder{font-size:68px}
+.detail-info{display:grid;gap:12px}
+.detail-data{background:#2b214b;border:2px solid #0b0819;padding:13px;border-radius:12px;min-width:0}
+.detail-data small{color:#cdbbff;font-size:12px;display:block;margin-bottom:5px;font-weight:750}
+.detail-data strong{font-size:clamp(16px,3vw,23px);overflow-wrap:anywhere}
+.detail-rarity{display:inline-flex;align-items:center;gap:8px}
+.detail-dot{width:13px;height:13px;border:2px solid #0b071b;border-radius:50%;display:inline-block}
+.detail-money{color:#4bff54}
+@media(max-width:510px){.detail-body{grid-template-columns:1fr}.detail-picture{min-height:180px}.detail-picture img{max-height:310px}}
+</style>
+</head><body>
 <title>Index Grow a Plant</title>
 <meta content="cover" name="claude:viewport-fit-sides"/>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
@@ -658,7 +682,23 @@ list.forEach(p=>{const type=TYPES.find(t=>t[0]===p.rarity)||TYPES[0];const card=
 if(!p.image){const raritytag=document.createElement('span');raritytag.className='rtag';raritytag.textContent=type[1];tile.append(raritytag);const ribbon=document.createElement('span');ribbon.className='ribbon';ribbon.textContent=p.name;tile.append(ribbon)}card.append(tile);
 const meta=document.createElement('div');meta.className='meta';meta.innerHTML='<span class="dot"></span><span class="rname"></span><span class="num"></span>';meta.querySelector('.dot').style.background=type[2];meta.querySelector('.rname').textContent=type[1];meta.querySelector('.num').textContent='n° '+p.order;card.append(meta);
 const rev=document.createElement('div');rev.className='rev';rev.textContent='💰 '+money(p.revenue);card.append(rev);
+card.dataset.detail='true';card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label','Voir la fiche de '+p.name);card.addEventListener('click',e=>{if(e.target.closest('button'))return;showDetail(p)});card.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!e.target.closest('button')){e.preventDefault();showDetail(p)}});
 if(editing){const row=document.createElement('div');row.className='plant-actions';const btn=document.createElement('button');btn.type='button';btn.textContent='✏️ Modifier';btn.onclick=()=>openPlant(p);row.append(btn);card.append(row)}grid.append(card)})}
+function showDetail(p){
+ const dialog=el('detailDialog');
+ const type=TYPES.find(t=>t[0]===p.rarity)||TYPES[0];
+ el('detailTitle').textContent=p.name;
+ el('detailSubtitle').textContent=activeCatalog==='halloween'?'🎃 INDEX HALLOWEEN':'🌱 INDEX DES PLANTES';
+ el('detailRarity').textContent=type[1];el('detailDot').style.background=type[2];
+ el('detailNumber').textContent='N° '+p.order;
+ el('detailRevenue').textContent=money(p.revenue);
+ const picture=el('detailPicture');picture.replaceChildren();
+ if(p.image){const img=document.createElement('img');img.src=p.image;img.alt='Image de '+p.name;picture.append(img)}
+ else{const span=document.createElement('span');span.className='detail-placeholder';span.textContent='🌱';picture.append(span)}
+ if(!dialog.open)dialog.showModal();
+}
+el('detailClose').onclick=()=>el('detailDialog').close();
+el('detailDialog').addEventListener('click',e=>{if(e.target===el('detailDialog'))el('detailDialog').close()});
 function setEditing(on){editing=on;draft=on?clone(activeCatalog==='normal'?plants:halloweenPlants):[];el('adminBtn').hidden=on;el('saveBtn').hidden=!on;el('quitBtn').hidden=!on;el('adminToolbar').hidden=!on;el('editNote').hidden=!on;el('publishGithub').hidden=!on;el('githubPublishNote').hidden=!on;render()}
 function passwordHash(s){let h=2166136261;for(let i=0;i<s.length;i++)h=Math.imul(h^s.charCodeAt(i),16777619);return String(h>>>0)}
 function openAdmin(){el('adminError').textContent='';el('adminPassword').value='';el('adminExplanation').textContent=localStorage.getItem(PASS_KEY)?'Entre ton code Admin pour accéder à ton catalogue.':'Choisis un code Admin (6 caractères minimum).';el('adminDialog').showModal()}
@@ -725,4 +765,16 @@ read().then(()=>render()).catch(e=>{console.error(e);render();toast("Chargement 
 </script>
 
 
-<button aria-label="Remonter en haut de la page" id="backToTop" type="button">↑ Haut de page</button><script id="small-quality-of-life">(()=>{const b=document.getElementById('backToTop');if(!b)return;const refresh=()=>b.classList.toggle('shown',window.scrollY>650);window.addEventListener('scroll',refresh,{passive:true});refresh();b.onclick=()=>window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});document.addEventListener('keydown',e=>{if(e.key==='/'&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)&&!document.querySelector('dialog[open]')){e.preventDefault();document.getElementById('plantSearch')?.focus();}});})();</script></body></html>
+<button aria-label="Remonter en haut de la page" id="backToTop" type="button">↑ Haut de page</button><script id="small-quality-of-life">(()=>{const b=document.getElementById('backToTop');if(!b)return;const refresh=()=>b.classList.toggle('shown',window.scrollY>650);window.addEventListener('scroll',refresh,{passive:true});refresh();b.onclick=()=>window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});document.addEventListener('keydown',e=>{if(e.key==='/'&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)&&!document.querySelector('dialog[open]')){e.preventDefault();document.getElementById('plantSearch')?.focus();}});})();</script>
+<dialog id="detailDialog" class="detail-dialog" aria-labelledby="detailTitle">
+ <div class="detail-top"><h2 id="detailTitle"></h2><p id="detailSubtitle"></p><button id="detailClose" type="button" class="detail-close" aria-label="Fermer la fiche">✕</button></div>
+ <div class="detail-body">
+  <div class="detail-picture" id="detailPicture"></div>
+  <div class="detail-info">
+   <div class="detail-data"><small>RARETÉ</small><strong class="detail-rarity"><span id="detailDot" class="detail-dot"></span><span id="detailRarity"></span></strong></div>
+   <div class="detail-data"><small>NUMÉRO DANS L'INDEX</small><strong id="detailNumber"></strong></div>
+   <div class="detail-data"><small>REVENU</small><strong class="detail-money" id="detailRevenue"></strong></div>
+  </div>
+ </div>
+</dialog>
+</body></html>
