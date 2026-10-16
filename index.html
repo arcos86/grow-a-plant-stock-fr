@@ -646,6 +646,7 @@ button:focus-visible, input:focus-visible, .tile:focus-visible { outline: 3px so
 <div class="count" id="count"></div>
 <div class="grid" id="grid"></div>
 </section>
+<section class="panel extra-panel" id="specialPanel" hidden aria-label="Collection et Guides"><div id="specialContent"></div></section>
 
 </div>
 <input accept="image/*" hidden="" id="file" type="file"/>
@@ -869,8 +870,8 @@ function renderGuides(){
  addGuide('🔒 Modifier le site',['Le mode Admin permet d’éditer les plantes et leurs images localement. Les changements ne sont visibles par tous qu’après publication d’un nouvel index.html sur GitHub.','Le code Admin dans une page publique n’est pas une véritable sécurité serveur. Seul le propriétaire du dépôt GitHub peut publier les fichiers.']);
 }
 const oldNormalClick=el('normalTab').onclick,oldHalloweenClick=el('halloweenTab').onclick;
-el('normalTab').onclick=()=>{if(specialView){setSpecial('');if(specialView)return;}changeCatalog('normal');setSpecial('')};
-el('halloweenTab').onclick=()=>{if(specialView){setSpecial('');if(specialView)return;}changeCatalog('halloween');setSpecial('')};
+el('normalTab').onclick=()=>{if(specialView){setSpecial('');if(specialView)return;}changeCatalog('normal')};
+el('halloweenTab').onclick=()=>{if(specialView){setSpecial('');if(specialView)return;}changeCatalog('halloween')};
 el('collectionTab').onclick=()=>setSpecial('collection');
 el('guidesTab').onclick=()=>setSpecial('guides');
 
