@@ -584,9 +584,40 @@ button:focus-visible, input:focus-visible, .tile:focus-visible { outline: 3px so
   .card { transition: transform .12s ease; }
   .card:hover { transform: translateY(-2px); }
 }
+
+
+/* Collection et Guides */
+.site-nav{flex-wrap:wrap}
+.extra-panel[hidden],.hero[hidden],.panel[hidden]{display:none!important}
+.extra-heading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.extra-heading h2{margin:0;font-size:clamp(24px,3.5vw,35px);text-shadow:2px 3px #0b071b}
+.extra-hint{color:#cbbcef;font-size:14px;line-height:1.55;margin:0 0 16px}
+.collection-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.collection-tools input{flex:1 1 210px;min-width:0;height:43px;background:#2a2148;color:white;border:3px solid #090611;border-radius:12px;padding:0 12px;font:800 14px var(--font-body)}
+.collection-tools button[aria-pressed="true"]{background:linear-gradient(#87ff67,#2ed43b);color:#101114}
+.progress-track{height:18px;overflow:hidden;border:3px solid #090611;border-radius:12px;background:#241a44;margin:9px 0 6px}
+.progress-fill{height:100%;background:linear-gradient(90deg,#3bdd57,#bdff70);width:0%;transition:width .15s}
+.progress-line{font-weight:900;color:#83ff78;margin-bottom:13px}
+.collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(156px,1fr));gap:14px}
+.collect-card{background:#261a45;border:3px solid #090611;border-radius:15px;padding:10px;min-width:0;display:flex;flex-direction:column;gap:7px}
+.collect-card.owned{border-color:#6bed65;box-shadow:0 0 0 2px #151029}
+.collect-thumb{width:100%;aspect-ratio:1;object-fit:cover;border:2px solid #090611;border-radius:10px;background:#4f4368}
+.collect-name{font-weight:1000;overflow-wrap:anywhere}
+.collect-info{font-size:12px;color:#bdabe5}
+.collect-bottom{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.collect-check{display:flex;gap:6px;align-items:center;color:white;font-size:13px;font-weight:900;cursor:pointer}
+.collect-check input{width:19px;height:19px;accent-color:#59e74d}
+.collect-details{font-size:12px;min-height:31px;padding:0 10px}
+.guide-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:14px}
+.guide-card{background:#281b4a;border:3px solid #090611;border-radius:15px;padding:18px;line-height:1.55}
+.guide-card h3{margin:0 0 8px;color:#80f46e;font-size:20px}
+.guide-card p{margin:0 0 9px;color:#e5dafa;font-size:14px}
+.guide-rarity{display:flex;justify-content:space-between;gap:6px;padding:5px 0;border-bottom:1px solid #5a4b7d;font-size:13px;font-weight:850}
+.guide-rarity span:last-child{color:#e8dfff}
+@media(max-width:500px){.collection-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.collect-card{padding:7px}.collect-details{min-height:34px}.extra-panel{padding:12px}}
 </style>
 <div class="wrap">
-<nav aria-label="Navigation principale" class="site-nav"><button class="tab active" id="normalTab" type="button">🌱 Index</button><button class="tab tab-muted" id="halloweenTab" type="button">🎃 Halloween</button></nav>
+<nav aria-label="Navigation principale" class="site-nav"><button class="tab active" id="normalTab" type="button">🌱 Index</button><button class="tab tab-muted" id="halloweenTab" type="button">🎃 Halloween</button><button class="tab tab-muted" id="collectionTab" type="button">📦 Collection</button><button class="tab tab-muted" id="guidesTab" type="button">📖 Guides</button></nav>
 <header class="hero"><div><h1><span class="emoji">🌱</span> Index des plantes</h1><p id="hero-subtitle">Mon Index Grow a Plant · 0 plante</p></div><span class="hero-pill">🌿 INDEX</span></header>
 <section class="panel">
 <div aria-label="Filtrer par rareté" class="rarity-filter" id="rarityFilters" role="group"></div>
@@ -770,6 +801,78 @@ function changeCatalog(which){
 }
 el('normalTab').onclick=()=>changeCatalog('normal');
 el('halloweenTab').onclick=()=>changeCatalog('halloween');
+
+
+// Onglets additionnels : état de collection personnel, guides fondés sur les catalogues.
+const COLLECTION_KEY='grow-a-plant-collection-v1';
+let specialView='',collectionGroup='normal',collectionFilter='all',collectionSearch='';
+let owned={};try{const parsed=JSON.parse(localStorage.getItem(COLLECTION_KEY)||'{}');if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed))owned=parsed}catch(e){console.warn('Collection locale indisponible',e)}
+function collectionId(group,p){return group+':'+String(p.id)}
+function saveCollection(){try{localStorage.setItem(COLLECTION_KEY,JSON.stringify(owned))}catch(e){toast('Sauvegarde de collection impossible sur cet appareil')}}
+function make(tag,cls,txt){const v=document.createElement(tag);if(cls)v.className=cls;if(txt!==undefined)v.textContent=txt;return v}
+function setSpecial(which){
+ if(editing){if(!confirm('Quitter le mode Admin sans enregistrer le brouillon ?'))return;setEditing(false)}
+ specialView=which;
+ document.querySelector('.hero').hidden=!!which;
+ document.querySelector('section.panel:not(.extra-panel)').hidden=!!which;
+ el('specialPanel').hidden=!which;
+ for(const [id,on] of [['normalTab',!which&&activeCatalog==='normal'],['halloweenTab',!which&&activeCatalog==='halloween'],['collectionTab',which==='collection'],['guidesTab',which==='guides']]){
+  const b=el(id);b.classList.toggle('active',!!on);b.classList.toggle('tab-muted',!on);b.setAttribute('aria-current',on?'page':'false');
+ }
+ if(which==='collection')renderCollection();
+ if(which==='guides')renderGuides();
+}
+function renderCollection(){
+ const root=el('specialContent');root.replaceChildren();
+ const heading=make('div','extra-heading');heading.append(make('h2','', '📦 Ma Collection'));root.append(heading);
+ root.append(make('p','extra-hint','Coche les plantes que tu possèdes dans Grow a Plant. Ta progression reste privée, uniquement dans ce navigateur (sur cet appareil).'));
+ const cats=collectionGroup==='normal'?plants:halloweenPlants;
+ const keys=cats.map(p=>collectionId(collectionGroup,p));const collected=keys.filter(k=>owned[k]).length;
+ const label=make('div','progress-line',`${collected} / ${cats.length} plantes obtenues · ${cats.length?Math.round(collected/cats.length*100):0} %`);root.append(label);
+ const bar=make('div','progress-track');const fill=make('div','progress-fill');fill.style.width=(cats.length?collected/cats.length*100:0)+'%';bar.append(fill);root.append(bar);
+ const tools=make('div','collection-tools');root.append(tools);
+ for(const [id,txt] of [['normal','🌱 Index normal'],['halloween','🎃 Halloween']]){const b=make('button','',txt);b.type='button';b.setAttribute('aria-pressed',String(collectionGroup===id));b.onclick=()=>{collectionGroup=id;collectionFilter='all';collectionSearch='';renderCollection()};tools.append(b)}
+ for(const [id,txt] of [['all','Toutes'],['owned','✅ Obtenues'],['missing','⬜ Manquantes']]){const b=make('button','',txt);b.type='button';b.setAttribute('aria-pressed',String(collectionFilter===id));b.onclick=()=>{collectionFilter=id;renderCollection()};tools.append(b)}
+ const input=make('input');input.type='search';input.placeholder='Rechercher dans ma collection…';input.setAttribute('aria-label','Rechercher dans ma collection');input.value=collectionSearch;tools.append(input);
+ const count=make('p','extra-hint');root.append(count);
+ const grid=make('div','collection-grid');root.append(grid);
+ const refill=()=>{
+  const term=collectionSearch.toLocaleLowerCase('fr-FR');const list=cats.filter(p=>p.name.toLocaleLowerCase('fr-FR').includes(term)&&(collectionFilter==='all'||!!owned[collectionId(collectionGroup,p)]===(collectionFilter==='owned')));
+  count.textContent=list.length+' plantes affichées';grid.replaceChildren();
+  if(!list.length){grid.append(make('p','extra-hint','Aucune plante ne correspond à ces filtres.'));return}
+  const frag=document.createDocumentFragment();
+  for(const p of list){const key=collectionId(collectionGroup,p);const card=make('article','collect-card'+(owned[key]?' owned':''));
+   if(p.image){const img=make('img','collect-thumb');img.src=p.image;img.alt=p.name;img.loading='lazy';card.append(img)}else card.append(make('div','collect-thumb','🌱'));
+   card.append(make('div','collect-name',p.name));
+   const r=TYPES.find(t=>t[0]===p.rarity)||TYPES[0];card.append(make('div','collect-info',r[1]+' · n° '+p.order));
+   const bottom=make('div','collect-bottom');const check=make('label','collect-check');const cb=make('input');cb.type='checkbox';cb.checked=!!owned[key];cb.setAttribute('aria-label','Je possède '+p.name);cb.onchange=()=>{if(cb.checked)owned[key]=true;else delete owned[key];saveCollection();renderCollection()};check.append(cb,make('span','', 'Je possède'));bottom.append(check);
+   const detail=make('button','collect-details','Voir la fiche');detail.type='button';detail.onclick=()=>{showDetail(p);el('detailSubtitle').textContent=collectionGroup==='halloween'?'🎃 INDEX HALLOWEEN':'🌱 INDEX DES PLANTES'};bottom.append(detail);card.append(bottom);frag.append(card);
+  }grid.append(frag);
+ };
+ input.oninput=()=>{collectionSearch=input.value;refill()};refill();
+}
+function renderGuides(){
+ const root=el('specialContent');root.replaceChildren();root.append(make('h2','','📖 Guides Grow a Plant'));
+ root.append(make('p','extra-hint','Des repères basés sur les informations de nos catalogues. Ce ne sont pas des conseils officiels du jeu.'));
+ const cards=make('div','guide-cards');root.append(cards);
+ function addGuide(title,paras){const c=make('article','guide-card');c.append(make('h3','',title));for(const txt of paras)c.append(make('p','',txt));cards.append(c);return c}
+ const normal=plants.length,halloween=halloweenPlants.length;
+ addGuide('🌱 Bien utiliser l’Index',[`L’Index normal contient ${normal} plantes. Tu peux filtrer par rareté, chercher un nom et classer les plantes par ordre du jeu, revenu ou ordre alphabétique.`, 'Clique sur une carte pour voir son image en grand, sa rareté, son numéro et son revenu renseigné.']);
+ addGuide('🎃 Événement Halloween',[`Le catalogue Halloween contient ${halloween} plantes enregistrées comme Exclusive.`, 'Elles ont leur propre onglet et leur propre progression dans Collection.']);
+ const r=addGuide('🌟 Comprendre les raretés',['Les raretés ci-dessous sont les catégories utilisées dans notre Index. Leur nom ne suffit pas à garantir un taux d’obtention dans le jeu.']);
+ for(const type of TYPES.filter(t=>t[0]!=='exclusive')){const cnt=plants.filter(p=>p.rarity===type[0]).length;if(!cnt)continue;const row=make('div','guide-rarity');const left=make('span','',type[1]);left.style.color=type[2];row.append(left,make('span','',cnt+' plantes'));r.append(row)}
+ const known=plants.filter(p=>p.revenue!==null&&Number.isFinite(Number(p.revenue)));
+ const sorted=known.slice().sort((a,b)=>Number(b.revenue)-Number(a.revenue));
+ const price=addGuide('💰 Comparer les revenus',['Le revenu affiché est celui enregistré dans ton Index, exprimé en dollars par seconde. Il ne tient pas compte d’éventuels bonus ou changements de jeu.','Exemples des revenus renseignés les plus élevés dans ton catalogue :']);
+ for(const p of sorted.slice(0,5))price.append(make('p','',p.name+' — '+money(p.revenue)));
+ addGuide('📦 Suivre ta collection',['Ouvre l’onglet Collection pour cocher chaque plante que tu possèdes. Le pourcentage se met à jour automatiquement.','Les cases cochées sont sauvegardées uniquement dans ton navigateur. Sur un autre appareil, dans une fenêtre privée ou après effacement des données du navigateur, tu ne retrouveras pas forcément cette progression.']);
+ addGuide('🔒 Modifier le site',['Le mode Admin permet d’éditer les plantes et leurs images localement. Les changements ne sont visibles par tous qu’après publication d’un nouvel index.html sur GitHub.','Le code Admin dans une page publique n’est pas une véritable sécurité serveur. Seul le propriétaire du dépôt GitHub peut publier les fichiers.']);
+}
+const oldNormalClick=el('normalTab').onclick,oldHalloweenClick=el('halloweenTab').onclick;
+el('normalTab').onclick=()=>{if(specialView){setSpecial('');if(specialView)return;}changeCatalog('normal');setSpecial('')};
+el('halloweenTab').onclick=()=>{if(specialView){setSpecial('');if(specialView)return;}changeCatalog('halloween');setSpecial('')};
+el('collectionTab').onclick=()=>setSpecial('collection');
+el('guidesTab').onclick=()=>setSpecial('guides');
 
 read().then(()=>render()).catch(e=>{console.error(e);render();toast("Chargement impossible, importe ton JSON")});
 })();
